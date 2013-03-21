@@ -8,7 +8,10 @@ import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.media.MediaPlayer.OnCompletionListener;
+import android.media.MediaPlayer.OnPreparedListener;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Bundle;
@@ -17,7 +20,7 @@ import android.provider.MediaStore;
 import android.util.Log;
 
 
-public class AudioPlayerLocalService extends Service {
+public class AudioPlayerLocalService extends Service implements OnPreparedListener, OnCompletionListener {
 
 	Cursor cursor;
 	//El uri del album
@@ -44,6 +47,8 @@ public class AudioPlayerLocalService extends Service {
 	
 	@Override
 	public IBinder onBind(Intent arg0) {
+		mp = new MediaPlayer();
+		mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
 		//We return the binder to the client
 		return mBinder;
 	}
@@ -53,15 +58,19 @@ public class AudioPlayerLocalService extends Service {
 		cl.setUri(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI);
 		cl.setSelection("album_id = " + Long.toString(idAlbum));
 		Cursor c = cl.loadInBackground();
-		/*c.moveToFirst();
+		c.moveToFirst();
+		
 		Log.v("XXX", "Vamos a loguear que hay en title");
 		Log.v("XXX", c.getString(c.getColumnIndex(MediaStore.Audio.Media.TITLE)));
-		*/
-		
-		//Estas son las columnas
-//		Log.v("XXX", "Vamos a mostrar las columnas!!!!:");
-//		for (String s : c.getColumnNames())
-//			Log.v("XXX", s);
+		Log.v("XXX", "Esto es lo que tiene DATA");
+		Log.v("XXX", MediaStore.Audio.Media.DATA);
+		try {
+			mp.setDataSource(c.getString(c.getColumnIndex(MediaStore.Audio.Media.DATA)));
+			mp.setOnPreparedListener(this);
+			mp.prepareAsync();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -72,25 +81,14 @@ public class AudioPlayerLocalService extends Service {
 		listenerActivity.nextSong();
 	}
 
-//	@Override
-//	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-//        CursorLoader retCursor = new CursorLoader(
-//        		getApplicationContext(),
-//        		uri,
-//        		null,//ccols,
-//        		null,
-//        		null,
-//        		null);
-//		return retCursor;
-//	}
-//
-//	@Override
-//	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-//		this.cursor = cursor;
-//	}
-//
-//	@Override
-//	public void onLoaderReset(Loader<Cursor> arg0) {
-//		this.cursor = null;
-//	}
+	@Override
+	public void onPrepared(MediaPlayer mediaPlayer) {
+		mediaPlayer.setOnCompletionListener(this);
+		mediaPlayer.start();
+	}
+
+	@Override
+	public void onCompletion(MediaPlayer arg0) {
+		Log.v("XXX", "Termino el tema loquito!!!!!!!");
+	}
 }
