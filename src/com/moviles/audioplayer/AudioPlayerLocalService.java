@@ -1,11 +1,14 @@
 package com.moviles.audioplayer;
 
+import java.io.IOException;
+
 import android.app.Service;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Bundle;
@@ -19,6 +22,7 @@ public class AudioPlayerLocalService extends Service {
 	Cursor cursor;
 	//El uri del album
 	Uri uri;	
+	MediaPlayer mp;
 	
     // El Binder para los clientes
     private final IBinder mBinder = new AudioPlayerLocalBinder();
@@ -49,9 +53,11 @@ public class AudioPlayerLocalService extends Service {
 		cl.setUri(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI);
 		cl.setSelection("album_id = " + Long.toString(idAlbum));
 		Cursor c = cl.loadInBackground();
-		c.moveToFirst();
+		/*c.moveToFirst();
 		Log.v("XXX", "Vamos a loguear que hay en title");
-		Log.v("XXX", c.getString(c.getColumnIndex("title")));
+		Log.v("XXX", c.getString(c.getColumnIndex(MediaStore.Audio.Media.TITLE)));
+		*/
+		
 		//Estas son las columnas
 //		Log.v("XXX", "Vamos a mostrar las columnas!!!!:");
 //		for (String s : c.getColumnNames())
