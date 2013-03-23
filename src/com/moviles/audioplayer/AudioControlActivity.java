@@ -28,6 +28,11 @@ public class AudioControlActivity extends Activity {
 			this.idAlbum = 1l;
 		Log.v("XXX", "El id es: " + Long.toString(idAlbum));
 		setContentView(R.layout.activity_audio_control);
+		
+		Intent i = new Intent(this, AudioPlayerLocalService.class);
+		startService(i);
+		bindService(i, mConnection, Context.BIND_AUTO_CREATE);
+		
 		Button b = (Button) findViewById(R.id.button_play);
 		b.setOnClickListener(new OnClickListener() {
 			
@@ -35,17 +40,14 @@ public class AudioControlActivity extends Activity {
 			public void onClick(View v) {
 				if (mBound){
 					mService.setAlbum(AudioControlActivity.this.idAlbum);
-					mService.print();
 				}
 			}
 		});
 	}
-	@Override
-	protected void onStart(){
-		super.onStart();
-		Intent i = new Intent(this, AudioPlayerLocalService.class);
-		bindService(i, mConnection, Context.BIND_AUTO_CREATE);
-	}
+//	@Override
+//	protected void onStart(){
+//		super.onStart();
+//	}
 	
 	@Override
 	protected void onStop(){

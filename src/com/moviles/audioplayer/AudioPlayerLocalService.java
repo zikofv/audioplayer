@@ -47,11 +47,26 @@ public class AudioPlayerLocalService extends Service implements OnPreparedListen
 	
 	@Override
 	public IBinder onBind(Intent arg0) {
+		Log.v("XXX", "Llamamos al onBind del service");
 		mp = new MediaPlayer();
 		mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
+		mp.setOnPreparedListener(this);
 		//We return the binder to the client
 		return mBinder;
 	}
+	
+	@Override
+	public boolean onUnbind(Intent i){
+		boolean b = super.onUnbind(i);
+		Log.v("XXX", "Dentro de unbind del service");
+		return b;
+	}
+	
+	@Override
+	public void onCreate(){
+		Log.v("XXX", "Se llamo al oncreate del service");
+	}
+	
 	
 	public void setAlbum(long idAlbum){
 		CursorLoader cl = new CursorLoader(getApplicationContext());
@@ -60,25 +75,15 @@ public class AudioPlayerLocalService extends Service implements OnPreparedListen
 		Cursor c = cl.loadInBackground();
 		c.moveToFirst();
 		
-		Log.v("XXX", "Vamos a loguear que hay en title");
-		Log.v("XXX", c.getString(c.getColumnIndex(MediaStore.Audio.Media.TITLE)));
-		Log.v("XXX", "Esto es lo que tiene DATA");
-		Log.v("XXX", MediaStore.Audio.Media.DATA);
 		try {
-			mp.setDataSource(c.getString(c.getColumnIndex(MediaStore.Audio.Media.DATA)));
-			mp.setOnPreparedListener(this);
-			mp.prepareAsync();
+			if (mp != null){
+				if (mp.isPlaying()){mp.stop();mp.reset();}
+				mp.setDataSource(c.getString(c.getColumnIndex(MediaStore.Audio.Media.DATA)));
+				mp.prepareAsync();
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}
-
-	/**
-	 * Este metodo esta disponible para los clientes
-	 */
-	void print(){
-		Log.d("XXX", "Imprimiendo desde el LocalService");
-		listenerActivity.nextSong();
 	}
 
 	@Override
@@ -89,6 +94,7 @@ public class AudioPlayerLocalService extends Service implements OnPreparedListen
 
 	@Override
 	public void onCompletion(MediaPlayer arg0) {
-		Log.v("XXX", "Termino el tema loquito!!!!!!!");
 	}
+	
+
 }

@@ -3,6 +3,7 @@ package com.moviles.audioplayer;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.view.View;
@@ -13,6 +14,7 @@ public class ChooseModeActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
+//        Log.v("XXX", "CHMODE on create");
         setContentView(R.layout.activity_choose_mode);
         Button chooseArtist = (Button) findViewById(R.id.button_choose_artist);
         Button chooseAlbum = (Button) findViewById(R.id.button_choose_album);
@@ -35,4 +37,10 @@ public class ChooseModeActivity extends Activity {
 			}
 		});
 	}
+//	protected void onStart(){super.onStart();Log.v("XXX", "CHMODE on start");}
+//	protected void onRestart(){super.onRestart();Log.v("XXX", "CHMODEon restart");}
+//	protected void onResume(){super.onResume();Log.v("XXX", "CHMODEon resume");}
+//	protected void onPause(){super.onPause();Log.v("XXX", "CHMODEon pause");}
+//	protected void onDestroy(){super.onDestroy();Log.v("XXX", "CHMODEon destroy");}
+//	protected void onStop(){super.onStop();Log.v("XXX", "CHMODEon stop");}
 }

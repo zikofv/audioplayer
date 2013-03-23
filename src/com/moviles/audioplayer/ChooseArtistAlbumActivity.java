@@ -18,7 +18,7 @@ public class ChooseArtistAlbumActivity extends CallerChooseActivity {
 		if (extras != null && extras.containsKey("artist_id")){
 			long artist_id = extras.getLong("artist_id");
 			uri = MediaStore.Audio.Artists.Albums.getContentUri("external", artist_id);
-			Log.v("XXX", "El uri es: " + uri.toString());
+//			Log.v("XXX", "El uri es: " + uri.toString());
 		}
 		else{
 			uri = MediaStore.Audio.Artists.Albums.getContentUri("external", 1);//Si no recibimos un id de artista, usamos el id 1.

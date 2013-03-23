@@ -25,7 +25,7 @@ public class ChooseArtistActivity extends ChooseActivity {
        	listView.setOnItemClickListener(new OnItemClickListener() {
        		@Override
         	public void onItemClick(AdapterView<?> parent, View view, int position, long id){
-       			Log.v("XXX", "CLick en el id: " + Long.toString(id));
+//       			Log.v("XXX", "CLick en el id: " + Long.toString(id));
        			Intent i = new Intent(ChooseArtistActivity.this, ChooseArtistAlbumActivity.class);
        			i.putExtra("artist_id", id);
        			startActivity(i);
