@@ -26,7 +26,6 @@ public class AudioControlActivity extends Activity {
 			this.idAlbum = extras.getLong("idAlbum");
 		else
 			this.idAlbum = 1l;
-		Log.v("XXX", "El id es: " + Long.toString(idAlbum));
 		setContentView(R.layout.activity_audio_control);
 		
 		Intent i = new Intent(this, AudioPlayerLocalService.class);
@@ -74,12 +73,10 @@ public class AudioControlActivity extends Activity {
 				
 				@Override
 				public void nextSong() {
-					Log.d("XXX", "Cambio el tema, tenemos que actualizar la ui");
 				}
 
 				@Override
 				public void noMoreSongs() {
-					Log.d("XXX", "Llamado a noMoreSongs()");
 				}
 			});
 		}
