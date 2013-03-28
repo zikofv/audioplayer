@@ -21,7 +21,6 @@ import android.widget.ListView;
 public class AudioControlActivity extends Activity {
 	private AudioPlayerLocalService mService;
 	private boolean mBound = false;
-	private long idAlbum;
 	private Button play;
 	private Button pause;
 	private Button next;
@@ -29,29 +28,29 @@ public class AudioControlActivity extends Activity {
 	private Button setAlbum;
 	ListView lview;
 	SimpleCursorAdapter lViewAdapter;
+	static final int PICK_ALBUM_REQUEST = 0;
+
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Bundle extras = getIntent().getExtras();
-		if (extras.containsKey("idAlbum"))
-			this.idAlbum = extras.getLong("idAlbum");
-		else
-			this.idAlbum = 1l;
+//		if (extras.containsKey("idAlbum"))
+//			this.idAlbum = extras.getLong("idAlbum");
+//		else
+//this.idAlbum = 1l;
 		setContentView(R.layout.activity_audio_control);
 		
 		Intent i = new Intent(this, AudioPlayerLocalService.class);
 		startService(i);
 		bindService(i, mConnection, Context.BIND_AUTO_CREATE);
 		
-		
 		setAlbum = (Button) findViewById(R.id.button_set_album);
 		setAlbum.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				if (mBound){
-					mService.setAlbum(AudioControlActivity.this.idAlbum);
-				}
+				Intent i = new Intent(AudioControlActivity.this, ChooseModeActivity.class);
+				startActivityForResult(i, PICK_ALBUM_REQUEST);
 			}
 		});
 		
@@ -106,14 +105,26 @@ public class AudioControlActivity extends Activity {
 		lview.setAdapter(lViewAdapter);
 	}
 	
-	@Override
+	
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == PICK_ALBUM_REQUEST) {
+            if (resultCode == RESULT_OK) {
+				if (mBound){
+					mService.setAlbum(data.getLongExtra("idAlbum", 1l));
+				}
+            }
+        }
+    }
+
+	
+	/*	@Override
 	protected void onStop(){
 		super.onStop();
 		if (mBound){
 			unbindService(mConnection);
 			mBound = false;
 		}
-	}
+	}*/
 	
 	private ServiceConnection mConnection = new ServiceConnection() {
 		
@@ -126,6 +137,7 @@ public class AudioControlActivity extends Activity {
 		public void onServiceConnected(ComponentName name, IBinder service) {
 			AudioPlayerLocalBinder binder = (AudioPlayerLocalBinder) service;
 			mService = binder.getService();//Obtenemos el AudioPlayerLocalService mediante el binder
+			//mService.setAlbum(3l); // de prueba
 			mBound = true;
 			binder.setListener(new BoundListener() {
 				

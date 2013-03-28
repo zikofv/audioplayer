@@ -28,10 +28,9 @@ public class ChooseArtistActivity extends ChooseActivity {
 //       			Log.v("XXX", "CLick en el id: " + Long.toString(id));
        			Intent i = new Intent(ChooseArtistActivity.this, ChooseArtistAlbumActivity.class);
        			i.putExtra("artist_id", id);
-       			startActivity(i);
+       			startActivityForResult(i, AudioControlActivity.PICK_ALBUM_REQUEST);
         	}
 		});
-        	
     }
 
 	@Override
@@ -55,4 +54,13 @@ public class ChooseArtistActivity extends ChooseActivity {
         };
 
 	}
+	
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == AudioControlActivity.PICK_ALBUM_REQUEST) {
+            if (resultCode == RESULT_OK) {
+				setResult(RESULT_OK,data);
+				finish();
+            }
+        }
+    }
 }

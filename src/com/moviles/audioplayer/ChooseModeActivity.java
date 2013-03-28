@@ -24,7 +24,7 @@ public class ChooseModeActivity extends Activity {
 			public void onClick(View v) {
 				//intent iniciar activity seleccionar artista
 				Intent i = new Intent(ChooseModeActivity.this, ChooseArtistActivity.class);
-				startActivity(i);
+				startActivityForResult(i, AudioControlActivity.PICK_ALBUM_REQUEST);
 			}
 		});
         chooseAlbum.setOnClickListener(new OnClickListener() {
@@ -33,7 +33,7 @@ public class ChooseModeActivity extends Activity {
 			public void onClick(View v) {
 				//intent iniciar activity seleccionar album
 				Intent i = new Intent(ChooseModeActivity.this, ChooseAlbumActivity.class);
-				startActivity(i);
+				startActivityForResult(i, AudioControlActivity.PICK_ALBUM_REQUEST);
 			}
 		});
 	}
@@ -43,4 +43,12 @@ public class ChooseModeActivity extends Activity {
 //	protected void onPause(){super.onPause();Log.v("XXX", "CHMODEon pause");}
 //	protected void onDestroy(){super.onDestroy();Log.v("XXX", "CHMODEon destroy");}
 //	protected void onStop(){super.onStop();Log.v("XXX", "CHMODEon stop");}
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == AudioControlActivity.PICK_ALBUM_REQUEST) {
+            if (resultCode == RESULT_OK) {
+				setResult(RESULT_OK,data);
+				finish();
+            }
+        }
+    }
 }
