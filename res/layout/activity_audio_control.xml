@@ -4,10 +4,23 @@
     android:layout_height="match_parent"
     tools:context=".AudioControlActivity" >
 
+     <LinearLayout
+        android:id="@+id/linear_layout_audiocontrollactivityalbum"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <Button
+            android:id="@+id/button_set_album"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Set Album" />
+    </LinearLayout>
+    
     <LinearLayout
         android:id="@+id/linear_layout_audiocontrollactivity"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/linear_layout_audiocontrollactivityalbum" >
 
         <Button
             android:id="@+id/button_prev"
@@ -33,11 +46,7 @@
             android:layout_height="wrap_content"
             android:text="Siguiente" />
         
-        <Button
-            android:id="@+id/button_set_album"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Set Album" />
+
     </LinearLayout>
 
     <ListView
