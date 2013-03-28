@@ -67,7 +67,7 @@ public class AudioPlayerLocalService extends Service implements OnPreparedListen
 	@Override
 	public int onStartCommand(Intent i, int flags, int hola){
 		int r = super.onStartCommand(i, flags, hola);
-		Log.v("XXXY", "service: onStartCommand");
+		Log.v("XXXY", "service: onStartCommand chabon");
 		return r;
 	}
 	
