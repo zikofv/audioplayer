@@ -56,7 +56,7 @@ public class AudioPlayerLocalService extends Service implements OnPreparedListen
 	@Override
 	public void onCreate(){
 		super.onCreate();
-		this.state = State.not_ready;
+		changeState(State.not_ready);
 		mp = new MediaPlayer();
 		mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
 		mp.setOnPreparedListener(this);
@@ -64,29 +64,26 @@ public class AudioPlayerLocalService extends Service implements OnPreparedListen
 		Log.v("XXXY", "service: onCreate");
 	}
 	
-	@Override
-	public int onStartCommand(Intent i, int flags, int hola){
-		int r = super.onStartCommand(i, flags, hola);
-		Log.v("XXXY", "service: onStartCommand chabon");
-		return r;
-	}
-	
-	@Override
-	public void onStart(Intent i, int st){
-		super.onStart(i, st);
-		Log.v("XXXY", "service: onStart");
+	private void showCursor(Cursor c){
+		Log.v("XXXY", "Mostrando el cursor");
+		c.moveToFirst();
+		while (!c.isAfterLast()){
+			Log.v("XXXY", "service: ID: " + cursor.getInt(cursor.getColumnIndex(MediaStore.Audio.Media._ID)));
+			c.moveToNext();
+		}
+		c.moveToFirst();
 	}
 	
 	private void setDataSource(Cursor c){
 		Log.v("XXXY", "service: En setDataSource");
-		Log.v("XXXY", "service: Id acutal: " + cursor.getInt(cursor.getColumnIndex(MediaStore.Audio.Media._ID)));
+		Log.v("XXXY", "service: Id acutal: " + c.getInt(c.getColumnIndex(MediaStore.Audio.Media._ID)));
 		try {
 			if (mp != null){
 				if (mp.isPlaying()){
 					mp.stop();
 				}
 				mp.reset();
-				mp.setDataSource(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATA)));
+				mp.setDataSource(c.getString(c.getColumnIndex(MediaStore.Audio.Media.DATA)));
 				Log.v("XXXY", "service: llamamos a prepareAsync");
 				mp.prepareAsync();
 			}
@@ -102,7 +99,8 @@ public class AudioPlayerLocalService extends Service implements OnPreparedListen
 		cl.setSelection("album_id = " + Long.toString(idAlbum));
 		this.cursor = cl.loadInBackground();
 		Log.v("XXXY", "service: Cant de rows: " + Integer.toString(cursor.getCount()));
-		listenerActivity.setCursor(this.cursor);
+		//listenerActivity.setCursor(this.cursor); Esto te lo avanza!!!
+		//showCursor(cursor);
 		this.cursor.moveToFirst();
 		this.setDataSource(this.cursor);
 	}
@@ -110,17 +108,37 @@ public class AudioPlayerLocalService extends Service implements OnPreparedListen
 	public void play(){
 		if (mp != null && (this.state.equals(State.ready) || this.state.equals(State.paused))){
 			Log.v("XXXY", "Entramos al play");
+			changeState(State.playing);
 			mp.start();
-			this.state = State.playing;
 		}
 	}
 	
 	public void pause(){
 		Log.v("XXXY", "service: VAmos a pausar");
-		Log.v("XXXY", this.state.toString());
-		if (mp != null && this.state.equals(State.playing)){
+		Log.v("XXXY", "Estamos en el estado " + this.state.toString());
+		if (mp != null && (this.state.equals(State.playing) || this.state.equals(State.ready))){
+			changeState(State.paused);
 			mp.pause();
-			this.state = State.paused;
+		}
+	}
+	
+	public void next(){
+		Log.v("XXXY", "service: next");
+		if (!this.cursor.isLast()){
+			this.cursor.moveToNext();
+			Log.v("XXXY", "Funciono el moveTonext");
+			changeState(State.wait_on_prepared);
+			this.setDataSource(this.cursor);
+		}
+	}
+	
+	public void prev() {
+		Log.v("XXXY", "service: prev");
+		if (!this.cursor.isFirst()){
+			this.cursor.moveToPrevious();
+			Log.v("XXXY", "Funciono el moveToPrevious");
+			changeState(State.wait_on_prepared);
+			this.setDataSource(this.cursor);
 		}
 	}
 
@@ -130,21 +148,30 @@ public class AudioPlayerLocalService extends Service implements OnPreparedListen
 		listenerActivity.setCurrentSong("hola");
 		if (this.state.equals(State.wait_on_prepared)){
 			Log.v("XXXY", "service: estabamos en wait_on_prepared");
-			this.state = State.ready;
+			changeState(State.ready);
 			this.play();
 		}
-		this.state = State.ready;
+		changeState(State.ready);
 	}
 
 	@Override
 	public void onCompletion(MediaPlayer mediaPlayer) {
 		Log.v("XXXY", "service: onCompletion");
-//		if (!this.cursor.isLast()){
-			//this.cursor.moveToNext();
+		if (!this.cursor.isLast()){
+			this.cursor.moveToNext();
 			Log.v("XXXY", "Funciono el moveTonext");
-			this.state = State.wait_on_prepared;
+			changeState(State.wait_on_prepared);
 			this.setDataSource(this.cursor);
-//		}
+		}
 	}
+
+	private void changeState(State newState) {
+//		if (this.state != null)
+//			Log.v("XXXY", "Viejo estado: " + this.state.toString());
+		this.state = newState;
+//		Log.v("XXXY", "Nuevo estado: " + this.state.toString());
+		
+	}
+
 	
 }

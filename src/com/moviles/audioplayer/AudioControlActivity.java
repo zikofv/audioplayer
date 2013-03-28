@@ -24,6 +24,8 @@ public class AudioControlActivity extends Activity {
 	private long idAlbum;
 	private Button play;
 	private Button pause;
+	private Button next;
+	private Button prev;
 	private Button setAlbum;
 	ListView lview;
 	SimpleCursorAdapter lViewAdapter;
@@ -68,6 +70,26 @@ public class AudioControlActivity extends Activity {
 			public void onClick(View v) {
 				if (mBound){
 					mService.pause();
+				}
+			}
+		});
+		
+		next = (Button) findViewById(R.id.button_next);
+		next.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if (mBound){
+					mService.next();
+				}
+			}
+		});
+		
+		prev = (Button) findViewById(R.id.button_prev);
+		prev.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if (mBound){
+					mService.prev();
 				}
 			}
 		});
