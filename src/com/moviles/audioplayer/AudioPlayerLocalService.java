@@ -139,12 +139,12 @@ public class AudioPlayerLocalService extends Service implements OnPreparedListen
 	@Override
 	public void onCompletion(MediaPlayer mediaPlayer) {
 		Log.v("XXXY", "service: onCompletion");
-		if (!this.cursor.isAfterLast()){
+//		if (!this.cursor.isLast()){
 			//this.cursor.moveToNext();
 			Log.v("XXXY", "Funciono el moveTonext");
 			this.state = State.wait_on_prepared;
 			this.setDataSource(this.cursor);
-		}
+//		}
 	}
 	
 }

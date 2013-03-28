@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">AudioPlayer</string>
+    <string name="menu_settings">Settings</string>
+    <string name="title_activity_choose_album">Seleccione un album</string>
+    <string name="title_activity_choose_artist_album">Seleccione un album del artista</string>
+    <string name="title_activity_choose_artist">Seleccione un artista</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_show_info">ShowInfoActivity</string>
+    <string name="not_string">NOTIFICACION_STRING</string>
+    <string name="notification_title">NOTIFICACION_TITLE</string>
+    <string name="notification_message">NOTIFICACION_MESSAGE</string>
+    <string name="title_activity_audio_control">AudioControlActivity</string>
+
+</resources>
