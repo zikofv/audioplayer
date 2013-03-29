@@ -35,10 +35,6 @@ public class AudioControlActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Bundle extras = getIntent().getExtras();
-//		if (extras.containsKey("idAlbum"))
-//			this.idAlbum = extras.getLong("idAlbum");
-//		else
-//this.idAlbum = 1l;
 		setContentView(R.layout.activity_audio_control);
 		
 		Intent i = new Intent(this, AudioPlayerLocalService.class);
@@ -116,7 +112,7 @@ public class AudioControlActivity extends Activity {
         }
     }
 
-	
+	//No es necesario hacer el unbind ya que las actividades que se llaman desde esta actividad siempre vuelven a esta
 	/*	@Override
 	protected void onStop(){
 		super.onStop();
@@ -137,7 +133,6 @@ public class AudioControlActivity extends Activity {
 		public void onServiceConnected(ComponentName name, IBinder service) {
 			AudioPlayerLocalBinder binder = (AudioPlayerLocalBinder) service;
 			mService = binder.getService();//Obtenemos el AudioPlayerLocalService mediante el binder
-			//mService.setAlbum(3l); // de prueba
 			mBound = true;
 			binder.setListener(new BoundListener() {
 				
