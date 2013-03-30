@@ -1,7 +1,11 @@
 package com.moviles.audioplayer;
 
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.database.Cursor;
@@ -13,6 +17,7 @@ import android.net.Uri;
 import android.os.Binder;
 import android.os.IBinder;
 import android.provider.MediaStore;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 
@@ -25,6 +30,11 @@ public class AudioPlayerLocalService extends Service implements OnPreparedListen
     private BoundListener listenerActivity;//Los clientes que van a escuchar
 	private enum State {playing, paused, ready, not_ready, wait_on_prepared};
 	private State state;
+	private int notificationId;
+	private Notification notification;
+	private NotificationManager notificationManager;
+	private String currentSong;
+	private String currentArtist;
     
     //Binder class
 	public class AudioPlayerLocalBinder extends Binder {
@@ -54,7 +64,7 @@ public class AudioPlayerLocalService extends Service implements OnPreparedListen
 	 * Este método solo se llama una vez.
 	 */
 	@Override
-	public void onCreate(){
+	public void onCreate() {
 		super.onCreate();
 		changeState(State.not_ready);
 		mp = new MediaPlayer();
@@ -62,6 +72,21 @@ public class AudioPlayerLocalService extends Service implements OnPreparedListen
 		mp.setOnPreparedListener(this);
 		mp.setOnCompletionListener(this);
 		Log.v("XXXY", "service: onCreate");
+		
+		NotificationCompat.Builder mBuilder =
+		        new NotificationCompat.Builder(this)
+		        .setSmallIcon(R.drawable.icono)
+		        .setContentTitle("AudioPlayer")
+		        .setContentText("El reproductor esta ejecutandose.");
+		
+		Intent i = new Intent(this, AudioControlActivity.class);
+		PendingIntent pi = PendingIntent.getActivity(this, 0, i, 0);
+		mBuilder.setContentIntent(pi);
+		// notificationId allows you to update the notification later on.
+		this.notificationId = 1;
+		this.notification = mBuilder.build();
+		startForeground(1337, notification);
+		
 	}
 	
 	private void showCursor(Cursor c){
@@ -84,10 +109,11 @@ public class AudioPlayerLocalService extends Service implements OnPreparedListen
 				}
 				mp.reset();
 				mp.setDataSource(c.getString(c.getColumnIndex(MediaStore.Audio.Media.DATA)));
+				this.currentSong = c.getString(c.getColumnIndex(MediaStore.Audio.Media.TITLE)); 
+				this.currentArtist = c.getString(c.getColumnIndex(MediaStore.Audio.Media.ARTIST)); 
 				Log.v("XXXY", "service: llamamos a prepareAsync");
 				mp.prepareAsync();
 			}
-			else {Log.v("XXXY", "service: el mp es null? WTF");}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -99,8 +125,6 @@ public class AudioPlayerLocalService extends Service implements OnPreparedListen
 		cl.setSelection("album_id = " + Long.toString(idAlbum));
 		this.cursor = cl.loadInBackground();
 		Log.v("XXXY", "service: Cant de rows: " + Integer.toString(cursor.getCount()));
-		//listenerActivity.setCursor(this.cursor); Esto te lo avanza!!!
-		//showCursor(cursor);
 		this.cursor.moveToFirst();
 		this.setDataSource(this.cursor);
 	}
@@ -109,10 +133,29 @@ public class AudioPlayerLocalService extends Service implements OnPreparedListen
 		if (mp != null && (this.state.equals(State.ready) || this.state.equals(State.paused))){
 			Log.v("XXXY", "Entramos al play");
 			changeState(State.playing);
+			listenerActivity.setCurrentSong(this.currentArtist + "-" + this.currentSong);
+			updateNotification(this.currentArtist, this.currentSong);
 			mp.start();
 		}
 	}
-	
+	/**
+	 * Elimina las notificaciones previas y emite una nueva indicando el artista y titulo del archivo que se esta
+	 * reproduciendo. 
+	 * @param currSong 
+	 */
+	private void updateNotification(String currArtist, String currSong){
+		notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE); 
+		notificationManager.cancelAll();
+		notificationManager.notify(
+				notificationId,
+				new NotificationCompat.Builder(this)
+				.setContentTitle("AudioPlayer")
+				.setContentText("Reproduciendo:" +  currArtist + "-" + currSong)
+				.setSmallIcon(R.drawable.icono)
+				.build()
+		);
+	}
+
 	public void pause(){
 		Log.v("XXXY", "service: VAmos a pausar");
 		Log.v("XXXY", "Estamos en el estado " + this.state.toString());

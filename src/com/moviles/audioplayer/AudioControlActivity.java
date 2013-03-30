@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 
 public class AudioControlActivity extends Activity {
 	private AudioPlayerLocalService mService;
@@ -26,6 +27,7 @@ public class AudioControlActivity extends Activity {
 	private Button next;
 	private Button prev;
 	private Button setAlbum;
+	private TextView nowPlaying;
 	ListView lview;
 	SimpleCursorAdapter lViewAdapter;
 	static final int PICK_ALBUM_REQUEST = 0;
@@ -89,16 +91,18 @@ public class AudioControlActivity extends Activity {
 			}
 		});
 		
-		lViewAdapter = new SimpleCursorAdapter(
-				getApplicationContext(),
-				R.layout.list_entry,
-				null,//Inicialmente el cursor es null
-				new String[]{MediaStore.Audio.Media.TITLE},//from
-				new int[] {R.id.name_entry_1,},//to
-				0
-		);        
-		lview = (ListView) findViewById(R.id.listView_AudioControlActivity);
-		lview.setAdapter(lViewAdapter);
+		nowPlaying = (TextView) findViewById(R.id.textView_now_playing);
+		
+//		lViewAdapter = new SimpleCursorAdapter(
+//				getApplicationContext(),
+//				R.layout.list_entry,
+//				null,//Inicialmente el cursor es null
+//				new String[]{MediaStore.Audio.Media.TITLE},//from
+//				new int[] {R.id.name_entry_1,},//to
+//				0
+//		);        
+//		lview = (ListView) findViewById(R.id.listView_AudioControlActivity);
+//		lview.setAdapter(lViewAdapter);
 	}
 	
 	
@@ -145,12 +149,8 @@ public class AudioControlActivity extends Activity {
 				}
 
 				@Override
-				public void setCurrentSong(String string) {
-				}
-
-				@Override
-				public void setCursor(Cursor cursor) {
-					AudioControlActivity.this.lViewAdapter.swapCursor(cursor);
+				public void setCurrentSong(String song) {
+					AudioControlActivity.this.nowPlaying.setText(song);
 				}
 			});
 		}
