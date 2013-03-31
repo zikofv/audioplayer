@@ -28,6 +28,7 @@ public class AudioControlActivity extends Activity {
 	private Button prev;
 	private Button setAlbum;
 	private TextView nowPlaying;
+	private TextView artistBio;
 	ListView lview;
 	SimpleCursorAdapter lViewAdapter;
 	static final int PICK_ALBUM_REQUEST = 0;
@@ -92,6 +93,7 @@ public class AudioControlActivity extends Activity {
 		});
 		
 		nowPlaying = (TextView) findViewById(R.id.textView_now_playing);
+		artistBio = (TextView) findViewById(R.id.textView_artist_bio);
 		
 //		lViewAdapter = new SimpleCursorAdapter(
 //				getApplicationContext(),
@@ -151,6 +153,12 @@ public class AudioControlActivity extends Activity {
 				@Override
 				public void setCurrentSong(String song) {
 					AudioControlActivity.this.nowPlaying.setText(song);
+				}
+
+				@Override
+				public void setCurrentArtist(String currentArtist) {
+					ArtistBioATask aTask = new ArtistBioATask(artistBio, currentArtist);
+					aTask.execute(artistBio, currentArtist);
 				}
 			});
 		}

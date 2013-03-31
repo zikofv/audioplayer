@@ -35,6 +35,7 @@ public class AudioPlayerLocalService extends Service implements OnPreparedListen
 	private NotificationManager notificationManager;
 	private String currentSong;
 	private String currentArtist;
+	private boolean infoUpToDate = false;
     
     //Binder class
 	public class AudioPlayerLocalBinder extends Binder {
@@ -111,6 +112,7 @@ public class AudioPlayerLocalService extends Service implements OnPreparedListen
 				mp.setDataSource(c.getString(c.getColumnIndex(MediaStore.Audio.Media.DATA)));
 				this.currentSong = c.getString(c.getColumnIndex(MediaStore.Audio.Media.TITLE)); 
 				this.currentArtist = c.getString(c.getColumnIndex(MediaStore.Audio.Media.ARTIST)); 
+				infoUpToDate = false;
 				Log.v("XXXY", "service: llamamos a prepareAsync");
 				mp.prepareAsync();
 			}
@@ -133,11 +135,20 @@ public class AudioPlayerLocalService extends Service implements OnPreparedListen
 		if (mp != null && (this.state.equals(State.ready) || this.state.equals(State.paused))){
 			Log.v("XXXY", "Entramos al play");
 			changeState(State.playing);
-			listenerActivity.setCurrentSong(this.currentArtist + "-" + this.currentSong);
-			updateNotification(this.currentArtist, this.currentSong);
+			updateCurrentInfo(this.currentArtist, this.currentSong);
 			mp.start();
 		}
 	}
+	
+	private void updateCurrentInfo(String currentArtist2, String currentSong2) {
+		if (!infoUpToDate){
+			listenerActivity.setCurrentSong(this.currentArtist + "-" + this.currentSong);
+			listenerActivity.setCurrentArtist(this.currentArtist);
+			updateNotification(this.currentArtist, this.currentSong);
+			infoUpToDate = true;
+		}
+	}
+
 	/**
 	 * Elimina las notificaciones previas y emite una nueva indicando el artista y titulo del archivo que se esta
 	 * reproduciendo. 
