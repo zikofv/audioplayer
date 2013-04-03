@@ -17,13 +17,13 @@
         android:id="@+id/button_choose_artist"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Seleccionar Artista" />
+        android:text="Ver Artistas" />
 
     <Button
         android:id="@+id/button_choose_album"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Seleccionar Album" />
+        android:text="Ver Albums" />
 </LinearLayout>
 
 </RelativeLayout>

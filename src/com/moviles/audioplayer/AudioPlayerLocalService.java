@@ -13,7 +13,6 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnPreparedListener;
-import android.net.Uri;
 import android.os.Binder;
 import android.os.IBinder;
 import android.provider.MediaStore;
@@ -24,10 +23,9 @@ import android.util.Log;
 public class AudioPlayerLocalService extends Service implements OnPreparedListener, OnCompletionListener {
 
 	private Cursor cursor;
-	private Uri uri;//El uri del album
 	private MediaPlayer mp;
     private final IBinder mBinder = new AudioPlayerLocalBinder();// El Binder para los clientes
-    private BoundListener listenerActivity;//Los clientes que van a escuchar
+    private BoundListener listenerActivity;// Instancia de la actividad cliente
 	private enum State {playing, paused, ready, not_ready, wait_on_prepared};
 	private State state;
 	private int notificationId;
@@ -37,7 +35,10 @@ public class AudioPlayerLocalService extends Service implements OnPreparedListen
 	private String currentArtist;
 	private boolean infoUpToDate = false;
     
-    //Binder class
+	/**
+	 * Subclase de Binder que se entrega a los clientes de este servicio al momento que se asocian.
+	 *
+	 */
 	public class AudioPlayerLocalBinder extends Binder {
 		AudioPlayerLocalService getService(){
 			return AudioPlayerLocalService.this;//El binder devuelve la instancia de esta clase
@@ -48,35 +49,31 @@ public class AudioPlayerLocalService extends Service implements OnPreparedListen
 		}
 	}
 	
+	/**
+	 * Este metodo es llamado cuando una actividad cliente se asocia a este servicio.
+	 */
 	@Override
 	public IBinder onBind(Intent arg0) {
-		Log.v("XXXY", "service: onBind");
+		Log.v("XXXZ", "service: onBind");
 		return mBinder;//We return the binder to the client
 	}
 	
-	@Override
-	public boolean onUnbind(Intent i){
-		boolean b = super.onUnbind(i);
-		Log.v("XXXY", "service: onUnbind");
-		return b;
-	}
-	
 	/**
-	 * Este método solo se llama una vez.
+	 * Este método se llama al crear el servicio.
 	 */
 	@Override
 	public void onCreate() {
+		Log.v("XXXZ", "service: onCreate");
 		super.onCreate();
 		changeState(State.not_ready);
 		mp = new MediaPlayer();
 		mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
 		mp.setOnPreparedListener(this);
 		mp.setOnCompletionListener(this);
-		Log.v("XXXY", "service: onCreate");
 		
 		NotificationCompat.Builder mBuilder =
 		        new NotificationCompat.Builder(this)
-		        .setSmallIcon(R.drawable.icono)
+		        .setSmallIcon(R.drawable.headphones)
 		        .setContentTitle("AudioPlayer")
 		        .setContentText("El reproductor esta ejecutandose.");
 		
@@ -90,19 +87,12 @@ public class AudioPlayerLocalService extends Service implements OnPreparedListen
 		
 	}
 	
-	private void showCursor(Cursor c){
-		Log.v("XXXY", "Mostrando el cursor");
-		c.moveToFirst();
-		while (!c.isAfterLast()){
-			Log.v("XXXY", "service: ID: " + cursor.getInt(cursor.getColumnIndex(MediaStore.Audio.Media._ID)));
-			c.moveToNext();
-		}
-		c.moveToFirst();
-	}
 	
+	/**
+	 * Carga el archivo indicado por el cursor en la instancia del MediaPlayer.
+	 * @param cursor el cursor de donde obtener el archivo.
+	 */
 	private void setDataSource(Cursor c){
-		Log.v("XXXY", "service: En setDataSource");
-		Log.v("XXXY", "service: Id acutal: " + c.getInt(c.getColumnIndex(MediaStore.Audio.Media._ID)));
 		try {
 			if (mp != null){
 				if (mp.isPlaying()){
@@ -113,7 +103,6 @@ public class AudioPlayerLocalService extends Service implements OnPreparedListen
 				this.currentSong = c.getString(c.getColumnIndex(MediaStore.Audio.Media.TITLE)); 
 				this.currentArtist = c.getString(c.getColumnIndex(MediaStore.Audio.Media.ARTIST)); 
 				infoUpToDate = false;
-				Log.v("XXXY", "service: llamamos a prepareAsync");
 				mp.prepareAsync();
 			}
 		} catch (Exception e) {
@@ -121,25 +110,24 @@ public class AudioPlayerLocalService extends Service implements OnPreparedListen
 		}
 	}
 	
+	/**
+	 * Establece el valor del album actual.
+	 * @param idAlbum long con el id del album.
+	 */
 	public void setAlbum(long idAlbum){
 		CursorLoader cl = new CursorLoader(getApplicationContext());
 		cl.setUri(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI);
 		cl.setSelection("album_id = " + Long.toString(idAlbum));
 		this.cursor = cl.loadInBackground();
-		Log.v("XXXY", "service: Cant de rows: " + Integer.toString(cursor.getCount()));
 		this.cursor.moveToFirst();
 		this.setDataSource(this.cursor);
 	}
 	
-	public void play(){
-		if (mp != null && (this.state.equals(State.ready) || this.state.equals(State.paused))){
-			Log.v("XXXY", "Entramos al play");
-			changeState(State.playing);
-			updateCurrentInfo(this.currentArtist, this.currentSong);
-			mp.start();
-		}
-	}
-	
+	/**
+	 * Indica el nombre del artista y tema actuales a la actvidad cliente de este servicio y al manejador de notificaciones.
+	 * @param currArtist el artista del tema actual 
+	 * @param currSong el nombre del tema actual 
+	 */
 	private void updateCurrentInfo(String currentArtist2, String currentSong2) {
 		if (!infoUpToDate){
 			listenerActivity.setCurrentSong(this.currentArtist + "-" + this.currentSong);
@@ -152,80 +140,132 @@ public class AudioPlayerLocalService extends Service implements OnPreparedListen
 	/**
 	 * Elimina las notificaciones previas y emite una nueva indicando el artista y titulo del archivo que se esta
 	 * reproduciendo. 
-	 * @param currSong 
+	 * @param currArtist el artista del tema actual 
+	 * @param currSong el nombre del tema actual 
 	 */
 	private void updateNotification(String currArtist, String currSong){
 		notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE); 
-		notificationManager.cancelAll();
+		cancelNotification();
 		notificationManager.notify(
 				notificationId,
 				new NotificationCompat.Builder(this)
 				.setContentTitle("AudioPlayer")
 				.setContentText("Reproduciendo:" +  currArtist + "-" + currSong)
-				.setSmallIcon(R.drawable.icono)
+				.setSmallIcon(R.drawable.headphones)
 				.build()
 		);
 	}
+	
+	/**
+	 * Elimina las notificaciones existentes.
+	 */
+	private void cancelNotification(){
+		notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE); 
+		notificationManager.cancelAll();
+	}
 
+	/**
+	 * Reproduce el tema actual.
+	 */
+	public void play(){
+		if (mp != null && (this.state.equals(State.ready) || this.state.equals(State.paused))){
+			changeState(State.playing);
+			updateCurrentInfo(this.currentArtist, this.currentSong);
+			mp.start();
+		}
+	}
+	
+	/**
+	 * Detiene la reproduccion del tema actual.
+	 */
 	public void pause(){
-		Log.v("XXXY", "service: VAmos a pausar");
-		Log.v("XXXY", "Estamos en el estado " + this.state.toString());
-		if (mp != null && (this.state.equals(State.playing) || this.state.equals(State.ready))){
+		if (mp != null && this.state.equals(State.playing)){
 			changeState(State.paused);
 			mp.pause();
 		}
 	}
 	
+	/**
+	 * Retrocede al tema anterior si no se esta reproduciendo el primero.
+	 */
 	public void next(){
-		Log.v("XXXY", "service: next");
 		if (!this.cursor.isLast()){
 			this.cursor.moveToNext();
-			Log.v("XXXY", "Funciono el moveTonext");
 			changeState(State.wait_on_prepared);
 			this.setDataSource(this.cursor);
 		}
 	}
 	
+	/**
+	 * Avanza al siguiente tema si no se esta reproduciendo el ultimo.
+	 */
 	public void prev() {
-		Log.v("XXXY", "service: prev");
 		if (!this.cursor.isFirst()){
 			this.cursor.moveToPrevious();
-			Log.v("XXXY", "Funciono el moveToPrevious");
 			changeState(State.wait_on_prepared);
 			this.setDataSource(this.cursor);
 		}
 	}
 
+	/**
+	 * Este método es llamado cuando el media player esta listo para reproducir un nuevo tema. 
+	 */
 	@Override
 	public void onPrepared(MediaPlayer mediaPlayer) {
-		Log.v("XXXY", "service: onPrepared");
-		listenerActivity.setCurrentSong("hola");
 		if (this.state.equals(State.wait_on_prepared)){
-			Log.v("XXXY", "service: estabamos en wait_on_prepared");
 			changeState(State.ready);
 			this.play();
 		}
-		changeState(State.ready);
+		else
+			changeState(State.ready);
 	}
 
+	/**
+	 * Este método es llamado cuando se termina de reproducir un tema.
+	 */
 	@Override
 	public void onCompletion(MediaPlayer mediaPlayer) {
-		Log.v("XXXY", "service: onCompletion");
+		cancelNotification();
 		if (!this.cursor.isLast()){
 			this.cursor.moveToNext();
-			Log.v("XXXY", "Funciono el moveTonext");
 			changeState(State.wait_on_prepared);
 			this.setDataSource(this.cursor);
 		}
 	}
 
 	private void changeState(State newState) {
-//		if (this.state != null)
-//			Log.v("XXXY", "Viejo estado: " + this.state.toString());
 		this.state = newState;
-//		Log.v("XXXY", "Nuevo estado: " + this.state.toString());
-		
 	}
-
 	
+	/**
+	 * Retorna verdadero si se esta reproduciendo un archivo.
+	 * @return True si se esta reproduciendo un archivo.
+	 */
+	public boolean isPlaying(){
+		return this.state.equals(State.playing);
+	}
+	
+	/**
+	 * Retorna verdadero si se esta en el estado pausa. 
+	 * @return True si se esta en el estado pausa. 
+	 */
+	public boolean isPaused(){
+		return this.state.equals(State.paused);
+	}
+	
+	/**
+	 * Retorna el nombre de la cancion que se esta reproduciendo.
+	 * @return String con el nombre de la cancion que se esta reproduciendo.
+	 */
+	public String getCurrentSong(){
+		return this.currentSong;
+	}
+	
+	/**
+	 * Retorna el nombre del artista de la cancion que se esta reproduciendo.
+	 * @return String con el nombre nombre del artista de la cancion que se esta reproduciendo.
+	 */
+	public String getCurrentArtist(){
+		return this.currentArtist;
+	}
 }

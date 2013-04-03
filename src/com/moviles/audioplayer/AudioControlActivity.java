@@ -4,13 +4,11 @@ import com.moviles.audioplayer.AudioPlayerLocalService.AudioPlayerLocalBinder;
 
 import android.os.Bundle;
 import android.os.IBinder;
-import android.provider.MediaStore;
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.database.Cursor;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.Log;
 import android.view.View;
@@ -31,18 +29,64 @@ public class AudioControlActivity extends Activity {
 	private TextView artistBio;
 	ListView lview;
 	SimpleCursorAdapter lViewAdapter;
+	private boolean mustSetAlbumId;
+	private long albumId;
 	static final int PICK_ALBUM_REQUEST = 0;
 
-	
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		Bundle extras = getIntent().getExtras();
-		setContentView(R.layout.activity_audio_control);
-		
+	protected void onStart(){
+		Log.v("XXXZ", "control: onStart");
+		super.onStart();
 		Intent i = new Intent(this, AudioPlayerLocalService.class);
 		startService(i);
 		bindService(i, mConnection, Context.BIND_AUTO_CREATE);
+	}
+	
+	@Override
+	protected void onResume(){
+		Log.v("XXXZ", "control: onResume");
+		super.onResume();
+	}
+	
+	@Override
+	protected void onRestart(){
+		Log.v("XXXZ", "control: onRestart");
+		super.onRestart();
+	}
+	
+	@Override
+	protected void onSaveInstanceState(Bundle bundle){
+		Log.v("XXXZ", "control: onSaveInstanceState");
+		super.onSaveInstanceState(bundle);
+	}
+	
+	@Override
+	protected void onStop(){
+		Log.v("XXXZ", "control: onStop");
+		super.onStop();
+		if (mBound && (mConnection != null)){
+			unbindService(mConnection);
+			mBound = false;
+		}
+	}
+	
+	@Override
+	protected void onPause(){
+		Log.v("XXXZ", "control: onPause");
+		super.onPause();
+	}
+	
+	@Override
+	protected void onDestroy(){
+		Log.v("XXXZ", "control: onDestroy");
+		super.onDestroy();
+	}
+	
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		Log.v("XXXZ", "control: onCreate");
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_audio_control);
 		
 		setAlbum = (Button) findViewById(R.id.button_set_album);
 		setAlbum.setOnClickListener(new OnClickListener() {
@@ -57,6 +101,7 @@ public class AudioControlActivity extends Activity {
 		play.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				Log.v("XXXZ", "control: mBound en play " + mBound);
 				if (mBound){
 					mService.play();
 				}
@@ -94,44 +139,51 @@ public class AudioControlActivity extends Activity {
 		
 		nowPlaying = (TextView) findViewById(R.id.textView_now_playing);
 		artistBio = (TextView) findViewById(R.id.textView_artist_bio);
+		Log.v("XXXZ", "control: Salimos del onCreate");
 		
-//		lViewAdapter = new SimpleCursorAdapter(
-//				getApplicationContext(),
-//				R.layout.list_entry,
-//				null,//Inicialmente el cursor es null
-//				new String[]{MediaStore.Audio.Media.TITLE},//from
-//				new int[] {R.id.name_entry_1,},//to
-//				0
-//		);        
-//		lview = (ListView) findViewById(R.id.listView_AudioControlActivity);
-//		lview.setAdapter(lViewAdapter);
 	}
 	
 	
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		Log.v("XXXZ", "control: onActivityResult");
         if (requestCode == PICK_ALBUM_REQUEST) {
             if (resultCode == RESULT_OK) {
-				if (mBound){
-					mService.setAlbum(data.getLongExtra("idAlbum", 1l));
-				}
+            	mustSetAlbumId = true;
+            	albumId = data.getLongExtra("idAlbum", 1l);
             }
         }
     }
-
-	//No es necesario hacer el unbind ya que las actividades que se llaman desde esta actividad siempre vuelven a esta
-	/*	@Override
-	protected void onStop(){
-		super.onStop();
-		if (mBound){
-			unbindService(mConnection);
-			mBound = false;
-		}
-	}*/
 	
+	/**
+	 * Este método se encarga de actualizar la vista de la actividad con los datos obtenidos del AudioPlayerLocalService.
+	 * Este método es llamado por onServiceConnected y por lo tanto se ejecuta cuando la actividad se crea.
+	 */
+	protected void updateViews() {
+		if (this.mBound){
+			if (this.mService.isPlaying() || this.mService.isPaused()){
+				//pedimos current song y current album al service
+				//actualizamos los textView de bio y de now_playing
+				String currentArtist = this.mService.getCurrentArtist();
+				Log.v("XXXZ", "control: updateViews curartist " + currentArtist);
+				this.nowPlaying.setText(currentArtist + "-" + this.mService.getCurrentSong());
+				ArtistBioATask aTask = new ArtistBioATask(artistBio, currentArtist);
+				aTask.execute(artistBio, currentArtist);
+			}
+		}
+	}
+	
+	private void setAlbumId() {
+		if (this.mBound && this.mustSetAlbumId){
+			this.mService.setAlbum(albumId);
+			this.mustSetAlbumId = false;
+			this.albumId = 0l;
+		}
+	}
 	private ServiceConnection mConnection = new ServiceConnection() {
 		
 		@Override
 		public void onServiceDisconnected(ComponentName name) {
+			Log.v("XXXZ", "control: onServiceDisconnected");
 			mBound = false;
 		}
 		
@@ -140,16 +192,11 @@ public class AudioControlActivity extends Activity {
 			AudioPlayerLocalBinder binder = (AudioPlayerLocalBinder) service;
 			mService = binder.getService();//Obtenemos el AudioPlayerLocalService mediante el binder
 			mBound = true;
+			Log.v("XXXZ", "control: onServiceConnected");
+			updateViews();//Actualizamos las vistas
+			setAlbumId();//Si volvemos de llamar al ChooseModeActivity y quedo un albumid pendiente, se lo indicamos al service
 			binder.setListener(new BoundListener() {
 				
-				@Override
-				public void nextSong() {
-				}
-
-				@Override
-				public void noMoreSongs() {
-				}
-
 				@Override
 				public void setCurrentSong(String song) {
 					AudioControlActivity.this.nowPlaying.setText(song);
@@ -162,5 +209,7 @@ public class AudioControlActivity extends Activity {
 				}
 			});
 		}
+			
 	};
+
 }
