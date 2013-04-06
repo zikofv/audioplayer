@@ -5,9 +5,11 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -22,6 +24,10 @@ import android.util.Log;
 
 public class AudioPlayerLocalService extends Service implements OnPreparedListener, OnCompletionListener {
 
+	public static final String PAUSE = "com.moviles.audioplayer.pause";
+	protected static final String PLAY = "com.moviles.audioplayer.play";
+	protected static final String NEXT = "com.moviles.audioplayer.next";
+	protected static final String PREVIOUS = "com.moviles.audioplayer.previous";
 	private Cursor cursor;
 	private MediaPlayer mp;
     private final IBinder mBinder = new AudioPlayerLocalBinder();// El Binder para los clientes
@@ -34,6 +40,22 @@ public class AudioPlayerLocalService extends Service implements OnPreparedListen
 	private String currentSong;
 	private String currentArtist;
 	private boolean infoUpToDate = false;
+	private BroadcastReceiver broadcastReceiver = new BroadcastReceiver(){
+
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			Log.v("XXXZ", "en el broadcast del service! "+intent.getAction());
+			if (intent.getAction().equals(PAUSE))
+				pause();
+			else if (intent.getAction().equals(PLAY))
+				play();
+			else if (intent.getAction().equals(NEXT))
+				next();
+			else if (intent.getAction().equals(PREVIOUS))
+				prev();
+		}
+		
+	};
     
 	/**
 	 * Subclase de Binder que se entrega a los clientes de este servicio al momento que se asocian.
@@ -83,6 +105,14 @@ public class AudioPlayerLocalService extends Service implements OnPreparedListen
 		// notificationId allows you to update the notification later on.
 		this.notificationId = 1;
 		this.notification = mBuilder.build();
+		
+		IntentFilter intentFilter = new IntentFilter();
+		intentFilter.addAction(PAUSE);
+		intentFilter.addAction(PLAY);
+		intentFilter.addAction(NEXT);
+		intentFilter.addAction(PREVIOUS);
+		registerReceiver(broadcastReceiver, intentFilter);
+		
 		startForeground(1337, notification);
 		
 	}
