@@ -24,10 +24,14 @@ import android.util.Log;
 
 public class AudioPlayerLocalService extends Service implements OnPreparedListener, OnCompletionListener {
 
+	public static final String PAUSE = "com.moviles.audioplayer.pause";
+	protected static final String PLAY = "com.moviles.audioplayer.play";
+	protected static final String NEXT = "com.moviles.audioplayer.next";
+	protected static final String PREVIOUS = "com.moviles.audioplayer.previous";
 	private Cursor cursor;
 	private MediaPlayer mp;
-    private final IBinder mBinder = new AudioPlayerLocalBinder();// El Binder para los clientes
-    private BoundListener listenerActivity;// Instancia de la actividad cliente
+  private final IBinder mBinder = new AudioPlayerLocalBinder();// El Binder para los clientes
+  private BoundListener listenerActivity;// Instancia de la actividad cliente
 	private enum State {playing, paused, ready, not_ready, wait_on_prepared};
 	private State state;
 	private int notificationId;
@@ -37,25 +41,25 @@ public class AudioPlayerLocalService extends Service implements OnPreparedListen
 	private String currentArtist;
 	private boolean infoUpToDate = false;
 	
-	/*
-	 * TEST!!!!
-	 */
 	public static final String PLAY = "com.moviles.audioplayer.playcommand";
 	
 	private BroadcastReceiver mIntentBR = new BroadcastReceiver(){
 
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			String action = intent.getAction();
-            String cmd = intent.getStringExtra("command");
-            Log.v("XXXZ", "Nos llego algo al onReceive");
+			Log.v("XXXZ", "en el broadcast del service! "+intent.getAction());
+			if (intent.getAction().equals(PAUSE))
+				pause();
+			else if (intent.getAction().equals(PLAY))
+				play();
+			else if (intent.getAction().equals(NEXT))
+				next();
+			else if (intent.getAction().equals(PREVIOUS))
+				prev();
 		}
 		
 	};
-	/*
-	 * TEST!!!!
-	 */
-	
+    
 	/**
 	 * Subclase de Binder que se entrega a los clientes de este servicio al momento que se asocian.
 	 *
@@ -121,6 +125,14 @@ public class AudioPlayerLocalService extends Service implements OnPreparedListen
 		// notificationId allows you to update the notification later on.
 		this.notificationId = 1;
 		this.notification = mBuilder.build();
+		
+		IntentFilter intentFilter = new IntentFilter();
+		intentFilter.addAction(PAUSE);
+		intentFilter.addAction(PLAY);
+		intentFilter.addAction(NEXT);
+		intentFilter.addAction(PREVIOUS);
+		registerReceiver(broadcastReceiver, intentFilter);
+		
 		startForeground(1337, notification);
 		
 	}

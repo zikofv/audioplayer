@@ -12,5 +12,9 @@
     <string name="notification_title">NOTIFICACION_TITLE</string>
     <string name="notification_message">NOTIFICACION_MESSAGE</string>
     <string name="title_activity_audio_control">AudioControlActivity</string>
+    <string name="previous">Anterior</string>
+    <string name="play">Play!</string>
+    <string name="stop">Parar</string>
+    <string name="next">Próximo</string>
 
 </resources>
