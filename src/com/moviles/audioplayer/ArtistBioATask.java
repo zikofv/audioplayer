@@ -2,6 +2,7 @@ package com.moviles.audioplayer;
 
 import java.util.List;
 
+import android.appwidget.AppWidgetManager;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.TextView;

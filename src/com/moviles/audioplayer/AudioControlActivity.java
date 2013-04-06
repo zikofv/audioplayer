@@ -5,6 +5,8 @@ import com.moviles.audioplayer.AudioPlayerLocalService.AudioPlayerLocalBinder;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.app.Activity;
+import android.app.PendingIntent;
+import android.app.PendingIntent.CanceledException;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -27,8 +29,6 @@ public class AudioControlActivity extends Activity {
 	private Button setAlbum;
 	private TextView nowPlaying;
 	private TextView artistBio;
-	ListView lview;
-	SimpleCursorAdapter lViewAdapter;
 	private boolean mustSetAlbumId;
 	private long albumId;
 	static final int PICK_ALBUM_REQUEST = 0;
@@ -40,6 +40,19 @@ public class AudioControlActivity extends Activity {
 		Intent i = new Intent(this, AudioPlayerLocalService.class);
 		startService(i);
 		bindService(i, mConnection, Context.BIND_AUTO_CREATE);
+		/*
+		 * TEST!!!!
+		 */
+//		i2.setComponent(new ComponentName(getApplicationContext(), AudioControlActivity.class));
+//		PendingIntent pi = PendingIntent.getService(getApplicationContext(), 0, i2, 0);
+//		try {
+//			pi.send();
+//		} catch (CanceledException e) {
+//			e.printStackTrace();
+//		}
+		/*
+		 * TEST!!!!
+		 */
 	}
 	
 	@Override
@@ -101,7 +114,16 @@ public class AudioControlActivity extends Activity {
 		play.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Log.v("XXXZ", "control: mBound en play " + mBound);
+				/**
+				 * Test
+				 */
+				Log.v("XXXZ", "control: mandamos el pending intent!!!!");
+				Intent i2 = new Intent(AudioPlayerLocalService.PLAY);
+				i2.putExtra("hola", "como estas?");
+				getApplicationContext().sendBroadcast(i2);
+				/**
+				 * Test
+				 */
 				if (mBound){
 					mService.play();
 				}

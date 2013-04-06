@@ -5,9 +5,11 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -34,7 +36,26 @@ public class AudioPlayerLocalService extends Service implements OnPreparedListen
 	private String currentSong;
 	private String currentArtist;
 	private boolean infoUpToDate = false;
-    
+	
+	/*
+	 * TEST!!!!
+	 */
+	public static final String PLAY = "com.moviles.audioplayer.playcommand";
+	
+	private BroadcastReceiver mIntentBR = new BroadcastReceiver(){
+
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			String action = intent.getAction();
+            String cmd = intent.getStringExtra("command");
+            Log.v("XXXZ", "Nos llego algo al onReceive");
+		}
+		
+	};
+	/*
+	 * TEST!!!!
+	 */
+	
 	/**
 	 * Subclase de Binder que se entrega a los clientes de este servicio al momento que se asocian.
 	 *
@@ -58,6 +79,13 @@ public class AudioPlayerLocalService extends Service implements OnPreparedListen
 		return mBinder;//We return the binder to the client
 	}
 	
+//	public int onStartCommand(Intent intent, int flags, int startId){
+//		int ret = super.onStartCommand(intent, flags, startId);
+//		Log.v("XXXZ", "service: onStartCommand intent: " + intent.getExtras().getString("hola"));
+//		return ret;
+//		
+//	}
+	
 	/**
 	 * Este método se llama al crear el servicio.
 	 */
@@ -65,6 +93,16 @@ public class AudioPlayerLocalService extends Service implements OnPreparedListen
 	public void onCreate() {
 		Log.v("XXXZ", "service: onCreate");
 		super.onCreate();
+
+		/*
+		 * TEST!!!!
+		 */
+		IntentFilter intFil = new IntentFilter();
+		intFil.addAction(PLAY);
+		registerReceiver(mIntentBR, intFil);
+		/*
+		 * TEST!!!!
+		 */
 		changeState(State.not_ready);
 		mp = new MediaPlayer();
 		mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
