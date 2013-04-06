@@ -15,13 +15,9 @@ public class WidgetAudioControlProvider extends AppWidgetProvider {
 
 	@Override
 	public void onEnabled(Context context) {
-		// TODO Auto-generated method stub
 		super.onEnabled(context);
 		Log.v("XXXZ", "WIDGET onEnabled");
 	}
-//    private final String ACTION_WIDGET_PLAY = "PlaySong";
-//    private final String ACTION_WIDGET_PAUSE = "PauseSong";
-//    private final String ACTION_WIDGET_STOP = "StopSong";   
     private final int INTENT_FLAGS = 0;
     private final int REQUEST_CODE = 0;
 
