@@ -41,7 +41,6 @@ public class AudioPlayerLocalService extends Service implements OnPreparedListen
 	private String currentArtist;
 	private boolean infoUpToDate = false;
 	
-	public static final String PLAY = "com.moviles.audioplayer.playcommand";
 	
 	private BroadcastReceiver mIntentBR = new BroadcastReceiver(){
 
@@ -98,15 +97,6 @@ public class AudioPlayerLocalService extends Service implements OnPreparedListen
 		Log.v("XXXZ", "service: onCreate");
 		super.onCreate();
 
-		/*
-		 * TEST!!!!
-		 */
-		IntentFilter intFil = new IntentFilter();
-		intFil.addAction(PLAY);
-		registerReceiver(mIntentBR, intFil);
-		/*
-		 * TEST!!!!
-		 */
 		changeState(State.not_ready);
 		mp = new MediaPlayer();
 		mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
@@ -126,6 +116,7 @@ public class AudioPlayerLocalService extends Service implements OnPreparedListen
 		this.notificationId = 1;
 		this.notification = mBuilder.build();
 		
+    //Creamos el intent filter, para los intents que envia el widget
 		IntentFilter intentFilter = new IntentFilter();
 		intentFilter.addAction(PAUSE);
 		intentFilter.addAction(PLAY);
