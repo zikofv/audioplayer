@@ -4,40 +4,38 @@
     android:layout_height="match_parent"
     tools:context=".WidgetAudioControlActivity" >
 
-    <ImageButton
-        android:id="@+id/imagePrev"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:contentDescription="@string/previous"
-        android:src="@drawable/icono" />
+        <ImageButton
+            android:id="@+id/imagePrev"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/previous"
+            android:src="@drawable/backward" />
 
-    <ImageButton
-        android:id="@+id/imagePlay"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_toRightOf="@+id/imagePrev"
-        android:contentDescription="@string/play"
-        android:src="@drawable/icono" />
+        <ImageButton
+            android:id="@+id/imagePlay"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_toRightOf="@+id/imagePrev"
+            android:contentDescription="@string/play"
+            android:src="@drawable/play" />
 
-    <ImageButton
-        android:id="@+id/imagePause"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_toRightOf="@+id/imagePlay"
-        android:contentDescription="@string/stop"
-        android:src="@drawable/icono" />
+        <ImageButton
+            android:id="@+id/imagePause"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_toRightOf="@+id/imagePlay"
+            android:contentDescription="@string/stop"
+            android:src="@drawable/pause" />
 
-    <ImageButton
-        android:id="@+id/imageNext"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_toRightOf="@+id/imagePause"
-        android:contentDescription="@string/next"
-        android:src="@drawable/icono" />
+        <ImageButton
+            android:id="@+id/imageNext"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_toRightOf="@+id/imagePause"
+            android:contentDescription="@string/next"
+            android:src="@drawable/forward" />
 
 </RelativeLayout>

@@ -42,10 +42,6 @@
             android:label="@string/title_activity_choose_album" >
         </activity>
         <activity
-            android:name="com.moviles.audioplayer.ShowInfoActivity"
-            android:label="@string/title_activity_show_info" >
-        </activity>
-        <activity
             android:name="com.moviles.audioplayer.AudioControlActivity"
             android:label="@string/title_activity_audio_control" >
             <intent-filter>
@@ -54,7 +50,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <service android:name="com.moviles.audioplayer.AudioPlayerIntentService" />
         <service android:name="com.moviles.audioplayer.AudioPlayerLocalService" />
     </application>
 

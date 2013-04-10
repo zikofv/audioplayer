@@ -26,10 +26,4 @@ public abstract class CallerChooseActivity extends ChooseActivity {
 			}
 		});
 	}
-//	protected void onStart(){super.onStart();Log.v("XXX", "on start");}
-//	protected void onRestart(){super.onRestart();Log.v("XXX", "on restart");}
-//	protected void onResume(){super.onResume();Log.v("XXX", "on resume");}
-//	protected void onPause(){super.onPause();Log.v("XXX", "on pause");}
-//	protected void onDestroy(){super.onDestroy();Log.v("XXX", "on destroy");}
-//	protected void onStop(){super.onStop();Log.v("XXX", "on stop");}
 }

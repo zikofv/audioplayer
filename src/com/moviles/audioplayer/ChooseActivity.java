@@ -76,13 +76,4 @@ public abstract class ChooseActivity extends Activity implements LoaderCallbacks
 		listViewAdapter.swapCursor(null);
 	}
 	
-//	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-//		super.onActivityResult(requestCode, resultCode, data);
-//        if (requestCode == AudioControlActivity.PICK_ALBUM_REQUEST) {
-//            if (resultCode == RESULT_OK) {
-//            	data.putExtra("idAlbum", data.getLongExtra("idAlbum", 1l));
-//            }
-//        }
-//    }
-	
 }

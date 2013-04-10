@@ -30,8 +30,8 @@ public class AudioPlayerLocalService extends Service implements OnPreparedListen
 	protected static final String PREVIOUS = "com.moviles.audioplayer.previous";
 	private Cursor cursor;
 	private MediaPlayer mp;
-  private final IBinder mBinder = new AudioPlayerLocalBinder();// El Binder para los clientes
-  private BoundListener listenerActivity;// Instancia de la actividad cliente
+	private final IBinder mBinder = new AudioPlayerLocalBinder();// El Binder para los clientes
+	private BoundListener listenerActivity;// Instancia de la actividad cliente
 	private enum State {playing, paused, ready, not_ready, wait_on_prepared};
 	private State state;
 	private int notificationId;
@@ -82,13 +82,6 @@ public class AudioPlayerLocalService extends Service implements OnPreparedListen
 		return mBinder;//We return the binder to the client
 	}
 	
-//	public int onStartCommand(Intent intent, int flags, int startId){
-//		int ret = super.onStartCommand(intent, flags, startId);
-//		Log.v("XXXZ", "service: onStartCommand intent: " + intent.getExtras().getString("hola"));
-//		return ret;
-//		
-//	}
-	
 	/**
 	 * Este método se llama al crear el servicio.
 	 */
@@ -112,17 +105,17 @@ public class AudioPlayerLocalService extends Service implements OnPreparedListen
 		Intent i = new Intent(this, AudioControlActivity.class);
 		PendingIntent pi = PendingIntent.getActivity(this, 0, i, 0);
 		mBuilder.setContentIntent(pi);
-		// notificationId allows you to update the notification later on.
+		//notificationId allows you to update the notification later on.
 		this.notificationId = 1;
 		this.notification = mBuilder.build();
 		
-    //Creamos el intent filter, para los intents que envia el widget
+	    //Creamos el intent filter, para los intents que envia el widget
 		IntentFilter intentFilter = new IntentFilter();
 		intentFilter.addAction(PAUSE);
 		intentFilter.addAction(PLAY);
 		intentFilter.addAction(NEXT);
 		intentFilter.addAction(PREVIOUS);
-		registerReceiver(broadcastReceiver, intentFilter);
+		registerReceiver(mIntentBR, intentFilter);
 		
 		startForeground(1337, notification);
 		
@@ -227,10 +220,17 @@ public class AudioPlayerLocalService extends Service implements OnPreparedListen
 	}
 	
 	/**
+	 * Retorna true si es posible avanzar al siguiente tema, o retroceder al anterior.
+	 */
+	private boolean canMove(){
+		return (this.state.equals(State.paused) || this.state.equals(State.playing) || this.state.equals(State.ready));
+	}
+	
+	/**
 	 * Retrocede al tema anterior si no se esta reproduciendo el primero.
 	 */
 	public void next(){
-		if (!this.cursor.isLast()){
+		if (canMove() && !this.cursor.isLast()){
 			this.cursor.moveToNext();
 			changeState(State.wait_on_prepared);
 			this.setDataSource(this.cursor);
@@ -241,7 +241,7 @@ public class AudioPlayerLocalService extends Service implements OnPreparedListen
 	 * Avanza al siguiente tema si no se esta reproduciendo el ultimo.
 	 */
 	public void prev() {
-		if (!this.cursor.isFirst()){
+		if (canMove() && !this.cursor.isFirst()){
 			this.cursor.moveToPrevious();
 			changeState(State.wait_on_prepared);
 			this.setDataSource(this.cursor);
