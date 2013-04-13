@@ -5,18 +5,13 @@ import com.moviles.audioplayer.AudioPlayerLocalService.AudioPlayerLocalBinder;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.app.Activity;
-import android.app.PendingIntent;
-import android.app.PendingIntent.CanceledException;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.support.v4.widget.SimpleCursorAdapter;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.ListView;
 import android.widget.TextView;
 
 public class AudioControlActivity extends Activity {
@@ -35,7 +30,6 @@ public class AudioControlActivity extends Activity {
 
 	@Override
 	protected void onStart(){
-		Log.v("XXXZ", "control: onStart");
 		super.onStart();
 		Intent i = new Intent(this, AudioPlayerLocalService.class);
 		startService(i);
@@ -43,26 +37,7 @@ public class AudioControlActivity extends Activity {
 	}
 	
 	@Override
-	protected void onResume(){
-		Log.v("XXXZ", "control: onResume");
-		super.onResume();
-	}
-	
-	@Override
-	protected void onRestart(){
-		Log.v("XXXZ", "control: onRestart");
-		super.onRestart();
-	}
-	
-	@Override
-	protected void onSaveInstanceState(Bundle bundle){
-		Log.v("XXXZ", "control: onSaveInstanceState");
-		super.onSaveInstanceState(bundle);
-	}
-	
-	@Override
 	protected void onStop(){
-		Log.v("XXXZ", "control: onStop");
 		super.onStop();
 		if (mBound && (mConnection != null)){
 			unbindService(mConnection);
@@ -71,20 +46,7 @@ public class AudioControlActivity extends Activity {
 	}
 	
 	@Override
-	protected void onPause(){
-		Log.v("XXXZ", "control: onPause");
-		super.onPause();
-	}
-	
-	@Override
-	protected void onDestroy(){
-		Log.v("XXXZ", "control: onDestroy");
-		super.onDestroy();
-	}
-	
-	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		Log.v("XXXZ", "control: onCreate");
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_audio_control);
 		
@@ -138,13 +100,11 @@ public class AudioControlActivity extends Activity {
 		
 		nowPlaying = (TextView) findViewById(R.id.textView_now_playing);
 		artistBio = (TextView) findViewById(R.id.textView_artist_bio);
-		Log.v("XXXZ", "control: Salimos del onCreate");
 		
 	}
 	
 	
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		Log.v("XXXZ", "control: onActivityResult");
         if (requestCode == PICK_ALBUM_REQUEST) {
             if (resultCode == RESULT_OK) {
             	mustSetAlbumId = true;
@@ -163,7 +123,6 @@ public class AudioControlActivity extends Activity {
 				//pedimos current song y current album al service
 				//actualizamos los textView de bio y de now_playing
 				String currentArtist = this.mService.getCurrentArtist();
-				Log.v("XXXZ", "control: updateViews curartist " + currentArtist);
 				this.nowPlaying.setText(currentArtist + "-" + this.mService.getCurrentSong());
 				ArtistBioATask aTask = new ArtistBioATask(artistBio, currentArtist);
 				aTask.execute(artistBio, currentArtist);
@@ -182,7 +141,6 @@ public class AudioControlActivity extends Activity {
 		
 		@Override
 		public void onServiceDisconnected(ComponentName name) {
-			Log.v("XXXZ", "control: onServiceDisconnected");
 			mBound = false;
 		}
 		
@@ -191,7 +149,6 @@ public class AudioControlActivity extends Activity {
 			AudioPlayerLocalBinder binder = (AudioPlayerLocalBinder) service;
 			mService = binder.getService();//Obtenemos el AudioPlayerLocalService mediante el binder
 			mBound = true;
-			Log.v("XXXZ", "control: onServiceConnected");
 			updateViews();//Actualizamos las vistas
 			setAlbumId();//Si volvemos de llamar al ChooseModeActivity y quedo un albumid pendiente, se lo indicamos al service
 			binder.setListener(new BoundListener() {

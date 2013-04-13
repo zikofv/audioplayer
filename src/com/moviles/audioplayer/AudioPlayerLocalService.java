@@ -19,7 +19,6 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.provider.MediaStore;
 import android.support.v4.app.NotificationCompat;
-import android.util.Log;
 
 
 public class AudioPlayerLocalService extends Service implements OnPreparedListener, OnCompletionListener {
@@ -46,7 +45,6 @@ public class AudioPlayerLocalService extends Service implements OnPreparedListen
 
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			Log.v("XXXZ", "en el broadcast del service! "+intent.getAction());
 			if (intent.getAction().equals(PAUSE))
 				pause();
 			else if (intent.getAction().equals(PLAY))
@@ -64,7 +62,7 @@ public class AudioPlayerLocalService extends Service implements OnPreparedListen
 	 *
 	 */
 	public class AudioPlayerLocalBinder extends Binder {
-		AudioPlayerLocalService getService(){
+		public AudioPlayerLocalService getService(){
 			return AudioPlayerLocalService.this;//El binder devuelve la instancia de esta clase
 		}
 		
@@ -78,7 +76,6 @@ public class AudioPlayerLocalService extends Service implements OnPreparedListen
 	 */
 	@Override
 	public IBinder onBind(Intent arg0) {
-		Log.v("XXXZ", "service: onBind");
 		return mBinder;//We return the binder to the client
 	}
 	
@@ -87,7 +84,6 @@ public class AudioPlayerLocalService extends Service implements OnPreparedListen
 	 */
 	@Override
 	public void onCreate() {
-		Log.v("XXXZ", "service: onCreate");
 		super.onCreate();
 
 		changeState(State.not_ready);

@@ -5,7 +5,6 @@ import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 import android.widget.RemoteViews;
 
 public class WidgetAudioControlProvider extends AppWidgetProvider {
@@ -13,7 +12,6 @@ public class WidgetAudioControlProvider extends AppWidgetProvider {
 	@Override
 	public void onEnabled(Context context) {
 		super.onEnabled(context);
-		Log.v("XXXZ", "WIDGET onEnabled");
 	}
     private final int INTENT_FLAGS = 0;
     private final int REQUEST_CODE = 0;

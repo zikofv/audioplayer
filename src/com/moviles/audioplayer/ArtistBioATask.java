@@ -2,9 +2,7 @@ package com.moviles.audioplayer;
 
 import java.util.List;
 
-import android.appwidget.AppWidgetManager;
 import android.os.AsyncTask;
-import android.util.Log;
 import android.widget.TextView;
 
 import com.echonest.api.v4.Artist;
@@ -25,7 +23,6 @@ public class ArtistBioATask extends AsyncTask<Object, Object, String> {
 	
 	@Override
 	protected void onPostExecute(String result) {
-		Log.d("ATASK", "Post Executing "+Thread.currentThread().getName());
 		text.setText(result);
 	}
 	@Override
