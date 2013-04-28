@@ -1,8 +1,8 @@
 audioplayer
 ===========
 
-Atencion! esta aplicación no esta terminada todavia.
-Warning! this app isn't finished yet.
-
 Un simple reproductor de audio para Android.
 A simple audio player for Android.
+
+Este reproductor fue implementado como trabajo final para la catedra de Dispositivos Móviles.
+This audio player was implemented as a final assignment for the Movile Devices course.

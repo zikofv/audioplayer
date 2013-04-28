@@ -15,12 +15,10 @@ public abstract class CallerChooseActivity extends ChooseActivity {
 		listView.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long album_id){
-				//Intent i = new Intent(getCaller(), AudioControlActivity.class);
 				Intent i = new Intent();
 				i.putExtra("idAlbum", album_id);
 				setResult(RESULT_OK,i);
 				finish();
-				//startActivity(i);
 			}
 		});
 	}
